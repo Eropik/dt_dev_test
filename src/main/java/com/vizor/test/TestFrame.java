@@ -5,6 +5,7 @@ package com.vizor.test;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -89,10 +90,7 @@ public class TestFrame extends JFrame {
                 try {
                     fileService.uploadFile(selectedFile, "assets");
                     JOptionPane.showMessageDialog(container, "File uploaded successfully!");
-                    files = fileService.refreshFiles("assets");
-                    totalItems = fileService.getTotalItems();
-                    
-                    populate(0, Math.min(4, totalItems) - 1);
+                    refreshFiles();
                 } catch (
                         IOException ex) {
                     JOptionPane.showMessageDialog(container, "Failed to upload the file.", "Error", JOptionPane.ERROR_MESSAGE);
@@ -105,7 +103,22 @@ public class TestFrame extends JFrame {
         return topPanel;
     }
 
+    private void refreshFiles() {
+        files = fileService.refreshFiles("assets");
+        totalItems = fileService.getTotalItems();
 
+        populate(0, Math.min(4, totalItems) - 1);
+    }
+
+    private void resizeAndShowName(File file, JLabel thumbnailLabel, double scale) {
+        try {
+            BufferedImage resizedImage = imageService.resizeImage(file, scale);
+            ImageIcon resizedIcon = new ImageIcon(resizedImage);
+            thumbnailLabel.setIcon(resizedIcon);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
 
     private void populate(int start, int end) {
