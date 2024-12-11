@@ -30,13 +30,18 @@ public class TestFrame extends JFrame {
     private static final ImageService imageService = new ImageServiceImpl();
     private static final FileService fileService = new FileServiceImpl();
 
-    private List<File> files = new ArrayList<>();
+    private final List<File> files = new ArrayList<>();
     private final JPanel container = new JPanel();
     private JScrollPane scrollPane;
     private PaginationHandler paginationHandler;
     private int totalItems;
 
     public TestFrame() {
+
+        setExtendedState(JFrame.MAXIMIZED_BOTH); // Maximizes the window to occupy the entire screen
+
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
         setSize(1024, 768);
         setTitle("GALLERY");
 
@@ -156,16 +161,9 @@ public class TestFrame extends JFrame {
 
         for (File file : _files) {
             try {
-                ImageIcon thumbnailIcon = new ImageIcon(imageService.createThumbnail(file));
-                JLabel thumbnailLabel = new JLabel(thumbnailIcon);
-                thumbnailLabel.setToolTipText(file.getName());
-
-                JLabel imageNameLabel = new JLabel(file.getName());
-                imageNameLabel.setForeground(Color.WHITE);
-                imageNameLabel.setHorizontalAlignment(SwingConstants.CENTER);
-                imageNameLabel.setVisible(false);
-
-                thumbnailLabel.add(imageNameLabel);
+                JPanel panel = createLabel(file);
+                JLabel thumbnailLabel = (JLabel) panel.getComponent(0);
+                JLabel imageNameLabel = (JLabel) panel.getClientProperty("imageNameLabel");
 
                 thumbnailLabel.addMouseListener(new MouseAdapter() {
                     @Override
@@ -178,20 +176,24 @@ public class TestFrame extends JFrame {
 
                     @Override
                     public void mouseEntered(MouseEvent e) {
-                        resizeAndShowName(file, thumbnailLabel, 1.5);
-                        imageNameLabel.setVisible(true);
+                        resizeAndShowName(file, thumbnailLabel, 1.8);
+                        if (imageNameLabel != null) {
+                            imageNameLabel.setVisible(true);
+                        }
                     }
 
                     @Override
                     public void mouseExited(MouseEvent e) {
                         resizeAndShowName(file, thumbnailLabel, 2);
-                        imageNameLabel.setVisible(false);
+                        if (imageNameLabel != null) {
+                            imageNameLabel.setVisible(false);
+                        }
                     }
                 });
 
-                container.add(thumbnailLabel);
+                container.add(panel);
             } catch (Exception e) {
-                e.printStackTrace();
+                System.err.println("populate func error: " + e.getMessage());
             }
         }
 
@@ -199,25 +201,40 @@ public class TestFrame extends JFrame {
         container.repaint();
     }
 
+
+
+
     private void filterAndLoadImages(String query) {
         container.removeAll();
 
         for (File file : files) {
             if (file.getName().toLowerCase().contains(query)) {
                 try {
-                    ImageIcon thumbnailIcon = new ImageIcon(imageService.createThumbnail(file));
-                    JLabel thumbnailLabel = new JLabel(thumbnailIcon);
-                    thumbnailLabel.setToolTipText(file.getName());
+                    JPanel panel = createLabel(file);
+                    JLabel thumbnailLabel = (JLabel) panel.getComponent(0);
+                    JLabel imageNameLabel = (JLabel) panel.getClientProperty("imageNameLabel");
 
-                    JLabel imageNameLabel = new JLabel(file.getName());
-                    imageNameLabel.setForeground(Color.WHITE);
-                    imageNameLabel.setHorizontalAlignment(SwingConstants.CENTER);
-                    imageNameLabel.setVisible(false);
+                    thumbnailLabel.addMouseListener(new MouseAdapter() {
+                        @Override
+                        public void mouseEntered(MouseEvent e) {
+                            resizeAndShowName(file, thumbnailLabel, 2.1);
+                            if (imageNameLabel != null) {
+                                imageNameLabel.setVisible(true);
+                            }
+                        }
 
-                    thumbnailLabel.add(imageNameLabel);
-                    container.add(thumbnailLabel);
+                        @Override
+                        public void mouseExited(MouseEvent e) {
+                            resizeAndShowName(file, thumbnailLabel, 2.1);
+                            if (imageNameLabel != null) {
+                                imageNameLabel.setVisible(false);
+                            }
+                        }
+                    });
+
+                    container.add(panel);
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    System.err.println("filterAndLoadImages func error: " + e.getMessage());
                 }
             }
         }
@@ -226,13 +243,35 @@ public class TestFrame extends JFrame {
         container.repaint();
     }
 
+
+    private JPanel createLabel(File file) throws IOException {
+        ImageIcon thumbnailIcon = new ImageIcon(imageService.createThumbnail(file));
+        JLabel thumbnailLabel = new JLabel(thumbnailIcon);
+        thumbnailLabel.setToolTipText(file.getName());
+
+        JLabel imageNameLabel = new JLabel(file.getName());
+        imageNameLabel.setForeground(Color.BLACK);
+        imageNameLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        imageNameLabel.setVisible(false);
+
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setBackground(Color.WHITE);
+        panel.add(thumbnailLabel, BorderLayout.CENTER);
+        panel.add(imageNameLabel, BorderLayout.SOUTH);
+
+        panel.putClientProperty("imageNameLabel", imageNameLabel);
+
+        return panel;
+    }
+
+
     private void resizeAndShowName(File file, JLabel thumbnailLabel, double scale) {
         try {
             BufferedImage resizedImage = imageService.resizeImage(file, scale);
             ImageIcon resizedIcon = new ImageIcon(resizedImage);
             thumbnailLabel.setIcon(resizedIcon);
         } catch (IOException e) {
-            e.printStackTrace();
+            System.err.println("resizeAndShowName func error: "+ e.getMessage());
         }
     }
 
