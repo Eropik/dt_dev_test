@@ -15,7 +15,5 @@ public interface FileService {
 
     void uploadFile(File source, String destinationPath) throws IOException;
 
-    List<File> refreshFiles(String folderPath);
 
-    int getTotalItems();
 }

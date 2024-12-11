@@ -27,21 +27,6 @@ public class FileServiceImpl implements FileService {
         Files.copy(source.toPath(), destination.toPath(), StandardCopyOption.REPLACE_EXISTING);
     }
 
-    @Override
-    public List<File> refreshFiles(String folderPath) {
-        File[] fs = getFilesInFolder(folderPath);
-        files.clear();
-        if (fs != null) {
-            files.addAll(Arrays.asList(fs));
-        }
-        return files;
-    }
 
-    public int getTotalItems() {
-        return files.size();
-    }
 
-    public List<File> getFiles() {
-        return files;
-    }
 }

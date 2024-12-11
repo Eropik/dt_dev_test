@@ -16,7 +16,11 @@ public class Main{
         frame.setLocationRelativeTo(null);
     }
 
-    public static void main(String[] args) {
+    public static void mainMain(String[] args) {
         SwingUtilities.invokeLater(new Main()::run);
+    }
+
+    public static void main1(String[] args) {
+        SwingUtilities.invokeLater(() -> new TestFrame().setVisible(true));
     }
 }

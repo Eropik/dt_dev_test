@@ -75,6 +75,10 @@ public class PaginationHandler implements CustomComponentListener {
         COMPONENT.modifyPreviousAndNextButton(c);
     }
 
+    public int getCurrentPage(){
+        return PAGINATION.getCurrent();
+    }
+
     @Override
     public PaginationEvent onClick() {
         return new PaginationEvent(PAGINATION);
@@ -92,7 +96,7 @@ public class PaginationHandler implements CustomComponentListener {
         loadPages();
     }
 
-    private void loadPages() {
+    public void loadPages() {
         COMPONENT.createPages(
                 PAGINATION.start(),
                 PAGINATION.end(),

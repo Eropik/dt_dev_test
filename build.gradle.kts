@@ -11,7 +11,7 @@ repositories {
 }
 
 application {
-    mainClass.set("com.vizor.test.Main")
+    mainClass.set("com.vizor.test.TestFrame")
 }
 
 java {
@@ -19,6 +19,7 @@ java {
         languageVersion = JavaLanguageVersion.of(11)
     }
 }
+
 
 
 

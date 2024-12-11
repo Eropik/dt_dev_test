@@ -25,8 +25,6 @@ public class Pagination {
         this.remainingItem = totalItems % set;
         this.numberOfPageToShow = numberOfPageToShow;
         setNumberOfPages();
-
-
     }
 
     private void setNumberOfPages() {
@@ -90,6 +88,12 @@ public class Pagination {
 
     public int getTotalItems() {
         return totalItems;
+    }
+
+    public void setTotalItems(int totalItems) {
+        this.totalItems = totalItems;
+        setNumberOfPages();
+        this.remainingItem = totalItems % set;
     }
 
     public int getNumberOfItem() {
