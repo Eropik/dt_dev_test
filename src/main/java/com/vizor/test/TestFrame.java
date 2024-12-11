@@ -3,7 +3,10 @@ package com.vizor.test;
 
 
 import java.awt.*;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -69,6 +72,33 @@ public class TestFrame extends JFrame {
         searchAndUploadPanel.add(uploadButton);
         topPanel.add(searchAndUploadPanel, BorderLayout.NORTH);
 
+        searchField.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyReleased(KeyEvent e) {
+                String query = searchField.getText().toLowerCase();
+                filterAndLoadImages(query);
+            }
+        });
+
+        uploadButton.addActionListener(e -> {
+            JFileChooser fileChooser = new JFileChooser();
+            fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+            int result = fileChooser.showOpenDialog(container);
+            if (result == JFileChooser.APPROVE_OPTION) {
+                File selectedFile = fileChooser.getSelectedFile();
+                try {
+                    fileService.uploadFile(selectedFile, "assets");
+                    JOptionPane.showMessageDialog(container, "File uploaded successfully!");
+                    files = fileService.refreshFiles("assets");
+                    totalItems = fileService.getTotalItems();
+                    
+                    populate(0, Math.min(4, totalItems) - 1);
+                } catch (
+                        IOException ex) {
+                    JOptionPane.showMessageDialog(container, "Failed to upload the file.", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
 
 
 
@@ -107,7 +137,32 @@ public class TestFrame extends JFrame {
     }
 
 
+    private void filterAndLoadImages(String query) {
+        container.removeAll();
 
+        for (File file : files) {
+            if (file.getName().toLowerCase().contains(query)) {
+                try {
+                    ImageIcon thumbnailIcon = new ImageIcon(imageService.createThumbnail(file));
+                    JLabel thumbnailLabel = new JLabel(thumbnailIcon);
+                    thumbnailLabel.setToolTipText(file.getName());
+
+                    JLabel imageNameLabel = new JLabel(file.getName());
+                    imageNameLabel.setForeground(Color.WHITE);
+                    imageNameLabel.setHorizontalAlignment(SwingConstants.CENTER);
+                    imageNameLabel.setVisible(false);
+
+                    thumbnailLabel.add(imageNameLabel);
+                    container.add(thumbnailLabel);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        container.repaint();
+        container.revalidate();
+    }
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> new TestFrame().setVisible(true));
